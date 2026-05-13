@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoreVaib Engine — Přestaň přemýšlet. Začni škálovat.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #080810;
+    --bg2: #0f0f1a;
+    --bg3: #15151f;
+    --accent: #00ff88;
+    --accent2: #7b5ea7;
+    --text: #e8e8f0;
+    --muted: #7a7a9a;
+    --border: rgba(255,255,255,0.08);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  .mono { font-family: 'Space Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 2rem;
+    background: rgba(8,8,16,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em;
+    color: var(--accent);
+  }
+  .nav-badge {
+    background: rgba(0,255,136,0.1); color: var(--accent);
+    border: 1px solid rgba(0,255,136,0.3);
+    padding: 0.3rem 0.8rem; border-radius: 100px;
+    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 8rem 2rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -40%; left: 50%; transform: translateX(-50%);
+    width: 800px; height: 800px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,255,136,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.15em;
+    color: var(--accent); text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    padding: 0.4rem 1rem;
+    border: 1px solid rgba(0,255,136,0.2);
+    border-radius: 100px;
+    display: inline-block;
+  }
+  h1 {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 700; line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+    max-width: 900px;
+  }
+  h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+  .hero-sub {
+    font-size: 1.2rem; color: var(--muted);
+    max-width: 560px; margin: 0 auto 3rem;
+    line-height: 1.7;
+  }
+  .hero-cta-group {
+    display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+    margin-bottom: 4rem;
+  }
+  .btn-primary {
+    background: var(--accent); color: #000;
+    padding: 1rem 2.5rem; border-radius: 8px;
+    font-weight: 700; font-size: 1rem; letter-spacing: -0.01em;
+    text-decoration: none; cursor: pointer; border: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+    display: inline-block;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,255,136,0.2); }
+  .btn-secondary {
+    background: transparent; color: var(--text);
+    padding: 1rem 2.5rem; border-radius: 8px;
+    font-weight: 600; font-size: 1rem;
+    text-decoration: none; cursor: pointer;
+    border: 1px solid var(--border);
+    transition: border-color 0.15s;
+    display: inline-block;
+  }
+  .btn-secondary:hover { border-color: rgba(255,255,255,0.2); }
+
+  /* SOCIAL PROOF BAR */
+  .proof-bar {
+    display: flex; gap: 3rem; flex-wrap: wrap; justify-content: center;
+    font-size: 0.85rem; color: var(--muted);
+  }
+  .proof-item strong { color: var(--text); font-size: 1.5rem; display: block; }
+
+  /* SECTION */
+  section { padding: 6rem 2rem; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .section-label {
+    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.12em;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 1rem;
+  }
+  h2 {
+    font-size: clamp(1.8rem, 3.5vw, 3rem); font-weight: 700;
+    letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 1rem;
+  }
+  .section-sub { font-size: 1.1rem; color: var(--muted); max-width: 540px; }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); }
+
+  /* ARCHITECTURE */
+  .arch-section { background: var(--bg2); }
+  .arch-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem; margin-top: 3rem;
+  }
+  .arch-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.5rem;
+    transition: border-color 0.2s;
+  }
+  .arch-card:hover { border-color: rgba(0,255,136,0.2); }
+  .arch-card-icon {
+    width: 40px; height: 40px; border-radius: 8px;
+    background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.15);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1rem; font-size: 1.1rem;
+  }
+  .arch-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .arch-card p { font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
+  .tag {
+    display: inline-block; font-size: 0.65rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 0.2rem 0.6rem; border-radius: 4px;
+    background: rgba(123,94,167,0.15); color: #b08fe0;
+    border: 1px solid rgba(123,94,167,0.2);
+    margin-top: 0.75rem;
+  }
+
+  /* STATS */
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1px; background: var(--border);
+    border: 1px solid var(--border); border-radius: 16px;
+    overflow: hidden; margin-top: 3rem;
+  }
+  .stat-cell {
+    background: var(--bg2); padding: 2rem;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 2.5rem; font-weight: 700; color: var(--accent);
+    letter-spacing: -0.03em; display: block;
+  }
+  .stat-label { font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem; }
+
+  /* FOUNDER */
+  .founder-section { background: var(--bg2); }
+  .founder-inner {
+    display: grid; grid-template-columns: 1fr 1.8fr;
+    gap: 4rem; align-items: start;
+  }
+  .founder-photo {
+    aspect-ratio: 1; border-radius: 16px;
+    background: var(--bg3); border: 1px solid var(--border);
+    position: relative; overflow: hidden;
+  }
+  .founder-photo img {
+    width: 100%; height: 100%;
+    display: block; object-fit: cover;
+    border-radius: inherit;
+  }
+  .founder-photo::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 40%; background: linear-gradient(transparent, rgba(0,255,136,0.05));
+    pointer-events: none;
+  }
+  .founder-quote {
+    font-size: 1.4rem; line-height: 1.5; font-weight: 500;
+    margin-bottom: 1.5rem; letter-spacing: -0.01em;
+  }
+  .founder-quote em { color: var(--accent); font-style: normal; }
+  .founder-bio { color: var(--muted); margin-bottom: 2rem; line-height: 1.8; }
+  .founder-name { font-weight: 700; font-size: 1.1rem; }
+  .founder-title { color: var(--muted); font-size: 0.9rem; }
+
+  /* TESTIMONIALS */
+  .testimonials-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem; margin-top: 3rem;
+  }
+  .testimonial-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.5rem;
+  }
+  .testimonial-stars { color: var(--accent); font-size: 0.9rem; margin-bottom: 1rem; }
+  .testimonial-text { font-size: 0.95rem; line-height: 1.7; margin-bottom: 1.5rem; }
+  .testimonial-author { display: flex; align-items: center; gap: 0.75rem; }
+  .testimonial-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--bg3); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700; color: var(--accent);
+  }
+  .testimonial-name { font-weight: 600; font-size: 0.9rem; }
+  .testimonial-role { font-size: 0.8rem; color: var(--muted); }
+
+  /* PRICING */
+  .pricing-section { background: var(--bg2); }
+  .pricing-card {
+    max-width: 560px; margin: 3rem auto 0;
+    background: var(--bg); border: 1px solid rgba(0,255,136,0.2);
+    border-radius: 20px; padding: 2.5rem;
+    position: relative; overflow: hidden;
+  }
+  .pricing-card::before {
+    content: '🔥 NEJPOPULÁRNĚJŠÍ';
+    position: absolute; top: 1.5rem; right: 1.5rem;
+    background: rgba(0,255,136,0.1); color: var(--accent);
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em;
+    padding: 0.3rem 0.7rem; border-radius: 100px;
+    border: 1px solid rgba(0,255,136,0.2);
+  }
+  .pricing-name { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+  .pricing-price {
+    font-size: 3.5rem; font-weight: 700; letter-spacing: -0.04em;
+    margin: 0.5rem 0; color: var(--accent);
+  }
+  .pricing-price span { font-size: 1.2rem; color: var(--muted); font-weight: 400; }
+  .pricing-crypto {
+    font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem;
+  }
+  .pricing-crypto strong { color: var(--accent); }
+  .pricing-guarantee {
+    font-size: 0.8rem; color: var(--muted);
+    margin-bottom: 2rem; padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .pricing-features { list-style: none; margin-bottom: 2rem; }
+  .pricing-features li {
+    padding: 0.6rem 0; font-size: 0.95rem; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .pricing-features li::before { content: '✓'; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+  .pricing-features li:last-child { border-bottom: none; }
+
+  /* COUNTDOWN */
+  .countdown-bar {
+    background: rgba(0,255,136,0.04); border: 1px solid rgba(0,255,136,0.1);
+    border-radius: 12px; padding: 1.5rem;
+    text-align: center; margin-bottom: 2rem;
+  }
+  .countdown-label { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; }
+  .countdown-timer { display: flex; gap: 1rem; justify-content: center; }
+  .countdown-unit { text-align: center; }
+  .countdown-num {
+    font-size: 2rem; font-weight: 700; font-family: 'Space Mono', monospace;
+    color: var(--accent); display: block;
+  }
+  .countdown-unit-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* FOOTER */
+  footer {
+    padding: 3rem 2rem;
+    text-align: center;
+    color: var(--muted); font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+  }
+  footer a { color: var(--muted); }
+
+  /* SCROLL REVEAL */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.5s, transform 0.5s; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  @media (max-width: 640px) {
+    .founder-inner { grid-template-columns: 1fr; }
+    nav .nav-badge { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo mono">CoreVaib Engine™</div>
+  <div class="nav-badge">BETA · Limitovaný přístup</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">Představujeme CoreVaib Engine v2.4</div>
+  <h1>Přestaň přemýšlet.<br><em>Začni škálovat.</em></h1>
+  <p class="hero-sub">
+    Proprietární multi-agentní architektura s RAG pipeline, MCP integrací a autonomním orchestračním vrstvou, která mění vše. Doslova vše.
+  </p>
+  <div class="hero-cta-group">
+    <a href="#pricing" class="btn-primary">Chci přístup → $4,997</a>
+    <a href="#how" class="btn-secondary">Jak to funguje?</a>
+  </div>
+  <div class="proof-bar">
+    <div class="proof-item"><strong>12,847</strong> aktivních uživatelů</div>
+    <div class="proof-item"><strong>2.3M</strong> tokenů zpracováno denně</div>
+    <div class="proof-item"><strong>94%</strong> úspora času*</div>
+    <div class="proof-item"><strong>∞</strong> potenciál</div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ARCHITECTURE -->
+<section class="arch-section" id="how">
+  <div class="container">
+    <p class="section-label reveal">Technologie</p>
+    <h2 class="reveal">Průmyslem uznávaná architektura.<br>Bez kompromisů.</h2>
+    <p class="section-sub reveal">CoreVaib Engine využívá nejpokročilejší kombinaci technologií, které dnes existují. Možná které kdy vůbec budou existovat.</p>
+    <div class="arch-grid">
+      <div class="arch-card reveal">
+        <div class="arch-card-icon">⚡</div>
+        <h3>Hyper-Parallelní RAG Core</h3>
+        <p>Retrieval-Augmented Generation pipeline s proprietárním chunking algoritmem, který zpracovává kontext s přesností, která nemá v oboru obdoby.</p>
+        <div class="tag">RAG · Vector DB · Embeddings</div>
+      </div>
+      <div class="arch-card reveal">
+        <div class="arch-card-icon">🧠</div>
+        <h3>Autonomní Agent Swarm</h3>
+        <p>Síť spolupracujících AI agentů řízená MCP vrstvou, která kontinuálně optimalizuje výstup bez lidského zásahu. 24/7. Nepřetržitě. Neustále. Furt.</p>
+        <div class="tag">MCP · Multi-agent · Orchestration</div>
+      </div>
+      <div class="arch-card reveal">
+        <div class="arch-card-icon">🔗</div>
+        <h3>NeuroSync Pipeline™</h3>
+        <p>Patentovaná (čekáme na odpověď z úřadu) technologie synchronizace datových toků v reálném čase. Latence tak nízká, že ji radši ani neměříme.</p>
+        <div class="tag">Streaming · Websockets · Edge</div>
+      </div>
+      <div class="arch-card reveal">
+        <div class="arch-card-icon">📊</div>
+        <h3>Prediktivní Context Engine</h3>
+        <p>Algoritmická vrstva, která anticipuje tvoje potřeby dříve, než je formuluješ. Nebo skoro. Záleží na kontextu. Ale většinou jo.</p>
+        <div class="tag">LLM · Fine-tuning · RLHF</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section>
+  <div class="container">
+    <p class="section-label reveal">Čísla, která mluví za vše</p>
+    <h2 class="reveal">Data nepodvádějí.<br>Naše určitě ne.</h2>
+    <div class="stats-grid reveal">
+      <div class="stat-cell">
+        <span class="stat-num">47,000</span>
+        <div class="stat-label">hodin ušetřených uživatelům<br><small style="font-size:0.75rem;opacity:0.5">(celkově, od spuštění, při optimistickém scénáři)</small></div>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-num">99.7%</span>
+        <div class="stat-label">uptime SLA*<br><small style="font-size:0.75rem;opacity:0.5">(*SLA smlouva teprve vzniká)</small></div>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-num">3x</span>
+        <div class="stat-label">rychlejší než konkurence<br><small style="font-size:0.75rem;opacity:0.5">(měřeno námi, na naší infrastruktuře)</small></div>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-num">∞</span>
+        <div class="stat-label">škálovatelnost<br><small style="font-size:0.75rem;opacity:0.5">(teoretická, za ideálních podmínek)</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOUNDER -->
+<section class="founder-section" id="founder">
+  <div class="container">
+    <div class="founder-inner">
+      <div>
+        <div class="founder-photo">
+          <img src="ondrej.png" alt="Ondřej Novotný, zakladatel CoreVaib Engine">
+        </div>
+      </div>
+      <div>
+        <p class="section-label">Zakladatel &amp; Chief Vaib Officer</p>
+        <blockquote class="founder-quote reveal">
+          "Ležel jsem v posteli o 2:47 v noci, díval se do stropu a najednou to přišlo. <em>Co kdybychom to celé automatizovali?</em>"
+        </blockquote>
+        <p class="founder-bio reveal">
+          Ondřej Novotný je vizionář, který strávil nespočet nocí vymýšlením systémů, které mění způsob, jakým lidé přistupují k problémům. Jako někdejší [doplní se] s více než [X] lety zkušeností v [oboru] se rozhodl, že udělá věci jinak.
+        </p>
+        <p class="founder-bio reveal">
+          CoreVaib Engine vznikl jako vedlejší projekt, který se stal hlavním projektem, který se stal vedlejším projektem, který se stal hlavním. Ondřej o tom napsal 47 LinkedIn postů.
+        </p>
+        <div class="founder-name reveal">Ondřej Novotný</div>
+        <div class="founder-title reveal">Chief Vaib Officer · Visionary · Disruptor · Bývalý [X]</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section>
+  <div class="container">
+    <p class="section-label reveal">Co říkají ostatní</p>
+    <h2 class="reveal">Změnilo to jejich životy.<br>Změní to i ten tvůj.</h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"Upřímně nechápu, jak jsem to celé dělal bez CoreVaibu. Systém funguje přesně tak, jak říká v popisu — nebo možná trochu jinak — ale výsledky jsou ohromující."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">MK</div>
+          <div>
+            <div class="testimonial-name">Martin K.</div>
+            <div class="testimonial-role">Entrepreneur · Praha</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"Za víkend jsem postavil systém, jehož hodnotu ještě neumím přesně kvantifikovat, ale cítím, že je obrovská. Ondřej ví, o čem mluví. Nebo aspoň vypadá, že ví."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">PV</div>
+          <div>
+            <div class="testimonial-name">Petra V.</div>
+            <div class="testimonial-role">Freelancer · Brno</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"Tohle je přesně to, co jsem hledal. Multi-agentní architektura s RAG pipeline mluví přímo k mé duši. Dokud jsem nevěděl, co to je, nechybělo mi to. Teď to chci."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">TN</div>
+          <div>
+            <div class="testimonial-name">Tomáš N.</div>
+            <div class="testimonial-role">Digital Nomad · "Práce odkudkoliv"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="pricing">
+  <div class="container" style="text-align:center">
+    <p class="section-label reveal">Investice do tvé budoucnosti</p>
+    <h2 class="reveal">Jedno rozhodnutí.<br>Nekonečný potenciál.</h2>
+    <div class="pricing-card reveal">
+      <div class="pricing-name">CoreVaib Mastermind Cohort</div>
+      <div class="pricing-price">$4,997 <span>USD</span></div>
+      <div class="pricing-crypto">Platba výhradně v <strong>VAIBCOIN (VBCN)</strong> · kurz se aktualizuje každých 17 sekund</div>
+      <div class="pricing-guarantee">💎 30denní garance vrácení peněz (v VAIBCOIN · přepočítáno aktuálním kurzem · bez poplatků za konverzi)</div>
+
+      <div class="countdown-bar">
+        <div class="countdown-label">Tato nabídka expiruje za</div>
+        <div class="countdown-timer">
+          <div class="countdown-unit"><span class="countdown-num" id="cd-h">11</span><div class="countdown-unit-label">hodin</div></div>
+          <div class="countdown-unit"><span class="countdown-num" id="cd-m">47</span><div class="countdown-unit-label">minut</div></div>
+          <div class="countdown-unit"><span class="countdown-num" id="cd-s">33</span><div class="countdown-unit-label">sekund</div></div>
+        </div>
+      </div>
+
+      <ul class="pricing-features">
+        <li>Doživotní přístup ke CoreVaib Engine (verze 2.4, aktualizace TBD)</li>
+        <li>12týdenní kurz: <em>Jak vytvořit a prodávat kurz o vibecodingu</em></li>
+        <li>Přístup do privátní Discord komunity (aktuálně 3 členové, z toho 2 jsou Ondřejovy účty)</li>
+        <li>Týdenní live Q&amp;A (záznamy dostupné do 48h, pokud technika vydrží)</li>
+        <li>Certifikát Certified Vaib Architect™ (PDF, formát A4)</li>
+        <li>Bonus: Prompt library s 500+ prompty (z toho 487 je variací na "act as...")</li>
+        <li>Exkluzivní NFT kolekce CoreVaib Genesis (eth mainnet, gas fees hradí kupující)</li>
+      </ul>
+
+      <a href="#" class="btn-primary" style="width:100%;text-align:center;display:block;font-size:1.1rem;padding:1.2rem">
+        Získat přístup za $4,997 v VAIBCOIN →
+      </a>
+      <p style="font-size:0.78rem;color:var(--muted);margin-top:1rem;line-height:1.6">
+        * Kurz o vibecodingu neobsahuje výuku vibecodingu. Cena nezahrnuje přístup k AI modelům, cloudové infrastruktuře, ani k internetu. Výsledky se mohou lišit. Ondřej neodpovídá za emocionální investice přesahující zakoupenou cenu.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p style="margin-bottom:0.5rem">CoreVaib Engine™ · Všechna práva vyhrazena · Ondřej Novotný · IČ: přidám až ho dostanu</p>
+  <p style="font-size:0.75rem;opacity:0.5">* Statistiky jsou orientační. VAIBCOIN není registrovaný cenný papír v žádné jurisdikci, která by ho chtěla. Počítadlo se resettuje každých 24 hodin — nestihl jsi ho? Stihneš zítra.</p>
+  <p style="margin-top:1rem;font-size:0.8rem">Tato stránka je <a href="https://vajbcoding.cz">vajbcoding.cz</a> projekt · Satira · Žádný kurz za 4 997 USD neexistuje · VAIBCOIN nekupujte</p>
+</footer>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+
+  let total = 11 * 3600 + 47 * 60 + 33;
+  function tick() {
+    if (total <= 0) total = 24 * 3600;
+    total--;
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
+    document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
+    document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
+    document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
+  }
+  setInterval(tick, 1000);
+</script>
+</body>
+</html>
